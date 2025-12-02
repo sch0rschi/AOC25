@@ -7,14 +7,14 @@ const Dial = @import("Dial.zig").Dial;
 const DialZeroVisitCounter = @import("Dial.zig").DialZeroVisitCounter;
 const Rotation = Dial.Rotation;
 
-pub fn main() !void {
+pub fn main() void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
-    const input_test = try file_utils.read_input(allocator, 1, true);
+    const input_test = file_utils.read_input(allocator, 1, true) catch unreachable;
     defer allocator.free(input_test);
-    const input = try file_utils.read_input(allocator, 1, false);
+    const input = file_utils.read_input(allocator, 1, false) catch unreachable;
     defer allocator.free(input);
     solve_1(input_test);
     solve_1(input);

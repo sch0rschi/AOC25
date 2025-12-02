@@ -40,7 +40,7 @@ pub const Dial = struct {
         if (rotation.value < delta) {
             return 0;
         } else {
-            return 1 + std.math.divTrunc(i16, rotation.value - delta, @as(i16, 100)) catch unreachable;
+            return @as(i16, 1) + (std.math.divTrunc(i16, rotation.value - delta, @as(i16, 100)) catch unreachable);
         }
     }
 };
