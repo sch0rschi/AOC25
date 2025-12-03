@@ -11,20 +11,25 @@ pub fn main() !void {
 
     var total_ns: u64 = 0;
 
-    inline for (info.@"struct".decls, 1..) |decl, day_index| {
-        const module = @field(Days, decl.name);
+    inline for (info.@"struct".decls) |decl| {
+        const day = @field(Days, decl.name);
 
-        std.debug.print("=== Day {} ===\n", .{day_index});
+        const underscore_index = comptime std.mem.indexOfScalar(u8, decl.name, '_').?;
+        const num_str = decl.name[underscore_index + 1 ..];
+
+        const day_num = comptime std.fmt.parseInt(u32, num_str, 10) catch @compileError("Invalid day number");
+
+        std.debug.print("=== Day {} ===\n", .{day_num});
 
         const start = try std.time.Instant.now();
-        module.main();
+        day.main();
         const end = try std.time.Instant.now();
 
         const ns = end.since(start);
         total_ns += ns;
 
         const ms = @as(f64, @floatFromInt(ns)) / 1_000_000.0;
-        std.debug.print("Day {} finished in {d:.3} ms\n\n", .{ day_index, ms });
+        std.debug.print("=== Day {} finished in {d:.3} ms ===\n\n", .{ day_num, ms });
     }
 
     const total_ms = @as(f64, @floatFromInt(total_ns)) / 1_000_000.0;
