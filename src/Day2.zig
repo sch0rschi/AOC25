@@ -5,6 +5,16 @@ const tokenizeAny = std.mem.tokenizeAny;
 const file_utils = @import("file_utils.zig");
 const simple_regex = @import("regex_utils.zig").simple_regex;
 
+const repetitions_divisors: [12][]const u64 = .{ // redundant checks removed
+    &[_]u64{}, &[_]u64{}, &[_]u64{11}, &[_]u64{111}, &[_]u64{101}, &[_]u64{11111}, &[_]u64{ 1001, 10101 }, &[_]u64{1111111}, &[_]u64{ 10001 }, &[_]u64{1001001}, &[_]u64{ 100001, 101010101 }, &[_]u64{11111111111},
+};
+
+const repetition_divisors: [12]u64 = .{
+    1, 0, 11, 0, 101, 0, 1001, 0, 10001, 0, 100001, 0,
+};
+
+const powers_of_10 = [_]usize{ 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000 };
+
 pub fn main() void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
@@ -14,6 +24,7 @@ pub fn main() void {
     defer allocator.free(input_test);
     const input = file_utils.read_input(allocator, 2, false) catch unreachable;
     defer allocator.free(input);
+
     solve_1(input_test);
     solve_1(input);
     solve_2(input_test);
@@ -21,33 +32,58 @@ pub fn main() void {
 }
 
 fn solve_1(input: []u8) void {
-    const sum: i64 = solve(input, "^(.+)\\1$");
-    print("{d}\n", .{sum});
-}
-
-fn solve_2(input: []u8) void {
-    const sum: i64 = solve(input, "^(.+)\\1+$");
-    print("{d}\n", .{sum});
-}
-
-fn solve(input: []u8, pattern: [:0]const u8) i64 {
-    const regex = simple_regex.setup_regex(pattern);
-    defer regex.free();
-
     var lines = tokenizeAny(u8, input, ",\n");
-    var sum: i64 = 0;
+    var sum: usize = 0;
     while (lines.next()) |line| {
         var range = std.mem.splitScalar(u8, line, '-');
         const from = std.fmt.parseInt(usize, range.next().?, 10) catch unreachable;
         const to = std.fmt.parseInt(usize, range.next().?, 10) catch unreachable;
 
-        for (from..to + 1) |id| {
-            var buf: [20]u8 = undefined;
-            const digits_string = std.fmt.bufPrint(&buf, "{d}", .{id}) catch unreachable;
-            if (regex.matches(digits_string)) {
-                sum = sum + @as(i64, @intCast(id));
+        var current = from;
+        while (current <= to) {
+            const len: u8 = 1 + @as(u8, @intCast(std.math.log10(current)));
+            const next_boundary = powers_of_10[len];
+            const range_end = @min(to, next_boundary - 1);
+
+            if (@mod(len, 2) == 0) {
+                for (current..range_end + 1) |id| {
+                    sum += id * @intFromBool(id % repetition_divisors[len] == 0);
+                }
             }
+
+            current = range_end + 1;
         }
     }
-    return sum;
+    print("{d}\n", .{sum});
+}
+
+fn solve_2(input: []u8) void {
+    var lines = tokenizeAny(u8, input, ",\n");
+    var sum: usize = 0;
+    while (lines.next()) |line| {
+        var range = std.mem.splitScalar(u8, line, '-');
+        const from = std.fmt.parseInt(usize, range.next().?, 10) catch unreachable;
+        const to = std.fmt.parseInt(usize, range.next().?, 10) catch unreachable;
+
+        var current = from;
+        while (current <= to) {
+            const len: u8 = 1 + @as(u8, @intCast(std.math.log10(current)));
+            const next_boundary = powers_of_10[len];
+            const range_end = @min(to, next_boundary - 1);
+
+            for (current..range_end + 1) |id| {
+                sum += id * @intFromBool(is_repeated_patterns(@intCast(id), len));
+            }
+
+            current = range_end + 1;
+        }
+    }
+    print("{d}\n", .{sum});
+}
+
+fn is_repeated_patterns(id: u64, len: usize) bool {
+    for (repetitions_divisors[len]) |divisor| {
+        if (id % divisor == 0) return true;
+    }
+    return false;
 }
