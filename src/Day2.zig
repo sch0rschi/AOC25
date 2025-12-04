@@ -95,13 +95,13 @@ fn solve_2(input: []u8) void {
             const range_end = @min(to, next_boundary - 1);
             const divisors = repetitions_divisors[len];
 
-                if (divisors.len == 1) {
-                    sum += calculate_divisions_in_range_for_divisor(current, divisors[0],range_end);
-                } else if (divisors.len == 3) {
-                    sum += calculate_divisions_in_range_for_divisor(current, divisors[0],range_end);
-                    sum += calculate_divisions_in_range_for_divisor(current, divisors[1],range_end);
-                    sum -= calculate_divisions_in_range_for_divisor(current, divisors[2],range_end);
-                }
+            if (divisors.len == 1) {
+                sum += calculate_divisions_in_range_for_divisor(current, divisors[0],range_end);
+            } else if (divisors.len == 3) {
+                sum += calculate_divisions_in_range_for_divisor(current, divisors[0],range_end);
+                sum += calculate_divisions_in_range_for_divisor(current, divisors[1],range_end);
+                sum -= calculate_divisions_in_range_for_divisor(current, divisors[2],range_end);
+            }
 
             current = range_end + 1;
         }
@@ -109,7 +109,7 @@ fn solve_2(input: []u8) void {
     print("{d}\n", .{sum});
 }
 
-fn is_repeated_patterns(id: u64, len: usize) bool {
+inline fn is_repeated_patterns(id: u64, len: usize) bool {
     for (repetitions_divisors[len]) |divisor| {
         if (id % divisor == 0) return true;
     }
