@@ -27,9 +27,9 @@ const repetition_divisors: [12]u64 = .{
 const powers_of_10 = [_]usize{ 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000 };
 
 pub fn main() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer _ = arena.deinit();
+    const allocator = arena.allocator();
 
     //const input_test = file_utils.read_input(allocator, 2, true) catch unreachable;
     //defer allocator.free(input_test);

@@ -5,9 +5,9 @@ const tokenizeScalar = std.mem.tokenizeScalar;
 const file_utils = @import("file_utils.zig");
 
 pub fn main() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer _ = arena.deinit();
+    const allocator = arena.allocator();
 
     //const input_test = file_utils.read_input(allocator, 3, true) catch unreachable;
     //defer allocator.free(input_test);

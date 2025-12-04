@@ -6,9 +6,9 @@ const file_utils = @import("file_utils.zig");
 const simple_regex = @import("regex_utils.zig").simple_regex;
 
 pub fn main() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer _ = arena.deinit();
+    const allocator = arena.allocator();
 
     //const input_test = file_utils.read_input(allocator, 2, true) catch unreachable;
     //defer allocator.free(input_test);
