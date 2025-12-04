@@ -6,7 +6,18 @@ const file_utils = @import("file_utils.zig");
 const simple_regex = @import("regex_utils.zig").simple_regex;
 
 const repetitions_divisors: [12][]const u64 = .{ // redundant checks removed
-    &[_]u64{}, &[_]u64{}, &[_]u64{11}, &[_]u64{111}, &[_]u64{101}, &[_]u64{11111}, &[_]u64{ 1001, 10101 }, &[_]u64{1111111}, &[_]u64{ 10001 }, &[_]u64{1001001}, &[_]u64{ 100001, 101010101 }, &[_]u64{11111111111},
+    &[_]u64{},
+    &[_]u64{},
+    &[_]u64{11},
+    &[_]u64{111},
+    &[_]u64{101},
+    &[_]u64{11111},
+    &[_]u64{ 1001, 10101, 111111 },
+    &[_]u64{1111111},
+    &[_]u64{ 10001 },
+    &[_]u64{1001001},
+    &[_]u64{ 100001, 101010101, 1111111111 },
+    &[_]u64{11111111111},
 };
 
 const repetition_divisors: [12]u64 = .{
@@ -44,17 +55,29 @@ fn solve_1(input: []u8) void {
             const len: u8 = 1 + @as(u8, @intCast(std.math.log10(current)));
             const next_boundary = powers_of_10[len];
             const range_end = @min(to, next_boundary - 1);
+            const divisor = repetition_divisors[len];
 
             if (@mod(len, 2) == 0) {
-                for (current..range_end + 1) |id| {
-                    sum += id * @intFromBool(id % repetition_divisors[len] == 0);
-                }
+                sum += calculate_divisions_in_range_for_divisor(current, divisor,range_end);
             }
 
             current = range_end + 1;
         }
     }
     print("{d}\n", .{sum});
+}
+
+inline fn calculate_divisions_in_range_for_divisor(current: usize, divisor: u64, range_end: u64) usize {
+    var sum : u64 = 0;
+    const ceil_division_from = @divFloor(current + divisor - 1, divisor);
+    const floor_division_to = @divFloor(range_end, divisor);
+    if (ceil_division_from <= floor_division_to) {
+        const number_of_repetitions = floor_division_to - ceil_division_from + 1;
+        const first_repetition = ceil_division_from * divisor;
+        sum += first_repetition * number_of_repetitions;
+        sum += (number_of_repetitions * (number_of_repetitions-1))/2 * divisor;
+    }
+    return sum;
 }
 
 fn solve_2(input: []u8) void {
@@ -70,10 +93,15 @@ fn solve_2(input: []u8) void {
             const len: u8 = 1 + @as(u8, @intCast(std.math.log10(current)));
             const next_boundary = powers_of_10[len];
             const range_end = @min(to, next_boundary - 1);
+            const divisors = repetitions_divisors[len];
 
-            for (current..range_end + 1) |id| {
-                sum += id * @intFromBool(is_repeated_patterns(@intCast(id), len));
-            }
+                if (divisors.len == 1) {
+                    sum += calculate_divisions_in_range_for_divisor(current, divisors[0],range_end);
+                } else if (divisors.len == 3) {
+                    sum += calculate_divisions_in_range_for_divisor(current, divisors[0],range_end);
+                    sum += calculate_divisions_in_range_for_divisor(current, divisors[1],range_end);
+                    sum -= calculate_divisions_in_range_for_divisor(current, divisors[2],range_end);
+                }
 
             current = range_end + 1;
         }
