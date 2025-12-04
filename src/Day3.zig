@@ -9,13 +9,13 @@ pub fn main() void {
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
-    const input_test = file_utils.read_input(allocator, 3, true) catch unreachable;
-    defer allocator.free(input_test);
+    //const input_test = file_utils.read_input(allocator, 3, true) catch unreachable;
+    //defer allocator.free(input_test);
     const input = file_utils.read_input(allocator, 3, false) catch unreachable;
     defer allocator.free(input);
-    solve_1(input_test[0..]);
+    //solve_1(input_test[0..]);
     solve_1(input[0..]);
-    solve_2(input_test[0..]);
+    //solve_2(input_test[0..]);
     solve_2(input[0..]);
 }
 
