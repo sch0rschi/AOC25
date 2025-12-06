@@ -7,6 +7,7 @@ const Days = struct {
     pub const Day_3 = @import("Day3.zig");
     pub const Day_4 = @import("Day4.zig");
     pub const Day_5 = @import("Day5.zig");
+    pub const Day_6 = @import("Day6.zig");
 };
 
 pub fn main() !void {
