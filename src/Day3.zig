@@ -2,34 +2,24 @@ const std = @import("std");
 const print = std.debug.print;
 const tokenizeScalar = std.mem.tokenizeScalar;
 
-const file_utils = @import("file_utils.zig");
+const input: []const u8 = @embedFile("day3");
 
 pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
-
-    //const input_test = file_utils.read_input(allocator, 3, true) catch unreachable;
-    //defer allocator.free(input_test);
-    const input = file_utils.read_input(allocator, 3, false) catch unreachable;
-    defer allocator.free(input);
-    //solve_1(input_test[0..]);
-    solve_1(input[0..]);
-    //solve_2(input_test[0..]);
-    solve_2(input[0..]);
+    solve_1();
+    solve_2();
 }
 
-fn solve_1(input: []u8) void {
-    const sum = solve(input, 2);
+fn solve_1() void {
+    const sum = solve(2);
     print("{}\n", .{sum});
 }
 
-fn solve_2(input: []u8) void {
-    const sum = solve(input, 12);
+fn solve_2() void {
+    const sum = solve(12);
     print("{}\n", .{sum});
 }
 
-fn solve(input: []u8, number_of_digits: usize) i64 {
+fn solve(number_of_digits: usize) i64 {
     var banks = tokenizeScalar(u8, input, '\n');
     var sum: i64 = 0;
     while (banks.next()) |bank| sum += calculate_max_digit_selection(bank[0..], number_of_digits);

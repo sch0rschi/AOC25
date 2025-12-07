@@ -1,7 +1,7 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const file_utils = @import("file_utils.zig");
+const input: []const u8 = @embedFile("day4");
 
 const MAX_SIZE = 137 + 2;
 
@@ -10,7 +10,7 @@ const Grid = struct {
     width: usize,
     height: usize,
 
-    fn init(input: []const u8) Grid {
+    fn init() Grid {
         var grid = Grid{
             .data = undefined,
             .width = 0,
@@ -48,20 +48,9 @@ const Grid = struct {
 };
 
 pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
+    var grid = Grid.init();
 
-    //const input_test = file_utils.read_input(allocator, 4, true) catch unreachable;
-    //defer allocator.free(input_test);
-    //var grid_test = Grid.init(input_test);
-    const input = file_utils.read_input(allocator, 4, false) catch unreachable;
-    defer allocator.free(input);
-    var grid = Grid.init(input);
-
-    //solve_1(&grid_test);
     solve_1(&grid);
-    //solve_2(&grid_test);
     solve_2(&grid);
 }
 

@@ -3,15 +3,9 @@ const print = std.debug.print;
 const tokenizeScalar = std.mem.tokenizeScalar;
 const tokenizeAny = std.mem.tokenizeAny;
 
-const file_utils = @import("file_utils.zig");
+const input: []const u8 = @embedFile("day6");
 
 pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
-
-    const input = file_utils.read_input(allocator, 6, false) catch unreachable;
-    defer allocator.free(input);
     var numbers: [1000][4]u64 = undefined;
     var operations: [1000]bool = undefined;
     var input_transposed: [5000][4]u8 = undefined;

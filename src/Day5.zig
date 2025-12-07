@@ -4,7 +4,7 @@ const tokenizeScalar = std.mem.tokenizeScalar;
 const tokenizeSequence = std.mem.tokenizeSequence;
 const parseInt = std.fmt.parseInt;
 
-const file_utils = @import("file_utils.zig");
+const input: []const u8 = @embedFile("day5");
 
 const Range = struct { from: u64, to: u64 };
 
@@ -13,25 +13,13 @@ pub fn main() void {
     defer _ = arena.deinit();
     const allocator = arena.allocator();
 
-    //const input_test = file_utils.read_input(allocator, 5, true) catch unreachable;
-    //defer allocator.free(input_test);
-    //const parsed_test = parse_input(allocator, input_test);
-    //const id_ranges_test = parsed_test.ranges;
-    //defer allocator.free(id_ranges_test);
-    //const ids_test = parsed_test.ids;
-    //defer allocator.free(ids_test);
-
-    const input = file_utils.read_input(allocator, 5, false) catch unreachable;
-    defer allocator.free(input);
-    const parsed = parse_input_merge_ranges(allocator, input);
+    const parsed = parse_input_merge_ranges(allocator);
     const id_ranges = parsed.ranges;
     defer allocator.free(id_ranges);
     const ids = parsed.ids;
     defer allocator.free(ids);
 
-    //solve_1(id_ranges_test, ids_test);
     solve_1(id_ranges, ids);
-    //solve_2(id_ranges_test);
     solve_2(id_ranges);
 }
 
@@ -56,7 +44,7 @@ fn solve_2(id_ranges: []Range) void {
     print("{}\n", .{sum});
 }
 
-inline fn parse_input_merge_ranges(allocator: std.mem.Allocator, input: []u8) struct { ranges: []Range, ids: []u64 } {
+inline fn parse_input_merge_ranges(allocator: std.mem.Allocator) struct { ranges: []Range, ids: []u64 } {
     var content = tokenizeSequence(u8, input, "\n\n");
     var id_ranges_string = tokenizeScalar(u8, content.next().?, '\n');
     var id_ranges: []Range = allocator.alloc(Range, 171) catch unreachable;

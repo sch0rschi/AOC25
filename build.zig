@@ -47,4 +47,23 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| {
         debug_run.addArgs(args);
     }
+
+    const days = [_]u8{ 1, 2, 3, 4, 5, 6, 7 };
+    for (days) |day| {
+        const input_name = b.fmt("day{d}", .{day});
+        const input_test_name = b.fmt("day{d}_test", .{day});
+
+        exe.root_module.addAnonymousImport(input_name, .{
+            .root_source_file = b.path(b.fmt("input/Day{d}", .{day})),
+        });
+        exe.root_module.addAnonymousImport(input_test_name, .{
+            .root_source_file = b.path(b.fmt("input/Day{d}_test", .{day})),
+        });
+        debug_exe.root_module.addAnonymousImport(input_name, .{
+            .root_source_file = b.path(b.fmt("input/Day{d}", .{day})),
+        });
+        debug_exe.root_module.addAnonymousImport(input_test_name, .{
+            .root_source_file = b.path(b.fmt("input/Day{d}_test", .{day})),
+        });
+    }
 }

@@ -2,27 +2,18 @@ const std = @import("std");
 const print = std.debug.print;
 const tokenizeScalar = std.mem.tokenizeScalar;
 
-const file_utils = @import("file_utils.zig");
 const Dial = @import("Dial.zig").Dial;
 const DialZeroVisitCounter = @import("Dial.zig").DialZeroVisitCounter;
 const Rotation = Dial.Rotation;
 
-pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
+const input: []const u8 = @embedFile("day1");
 
-    //const input_test = file_utils.read_input(allocator, 1, true) catch unreachable;
-    //defer allocator.free(input_test);
-    const input = file_utils.read_input(allocator, 1, false) catch unreachable;
-    defer allocator.free(input);
-    //solve_1(input_test);
-    solve_1(input);
-    //solve_2(input_test);
-    solve_2(input);
+pub fn main() void {
+    solve_1();
+    solve_2();
 }
 
-fn solve_1(input: []u8) void {
+fn solve_1() void {
     var rotations = tokenizeScalar(u8, input, '\n');
     var dial: Dial = Dial{};
     var zero_halt_counter: u32 = 0;
@@ -36,7 +27,7 @@ fn solve_1(input: []u8) void {
     print("{}\n", .{zero_halt_counter});
 }
 
-fn solve_2(input: []u8) void {
+fn solve_2() void {
     var rotations = tokenizeScalar(u8, input, '\n');
     var dial = Dial{};
     var zero_visit_counter: i32 = 0;

@@ -2,15 +2,9 @@ const std = @import("std");
 const print = std.debug.print;
 const tokenizeScalar = std.mem.tokenizeScalar;
 
-const file_utils = @import("file_utils.zig");
+const input: []const u8 = @embedFile("day7");
 
 pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
-
-    const input = file_utils.read_input(allocator, 7, false) catch unreachable;
-    defer allocator.free(input);
     var line_tokens = tokenizeScalar(u8, input, '\n');
     var grid: [71][141]i64 = undefined;
     var row_index_counter: usize = 0;

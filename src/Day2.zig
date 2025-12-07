@@ -2,8 +2,9 @@ const std = @import("std");
 const print = std.debug.print;
 const tokenizeAny = std.mem.tokenizeAny;
 
-const file_utils = @import("file_utils.zig");
 const simple_regex = @import("regex_utils.zig").simple_regex;
+
+const input: []const u8 = @embedFile("day2");
 
 const repetitions_divisors: [12][]const u64 = .{ // redundant checks removed
     &[_]u64{},
@@ -27,22 +28,11 @@ const repetition_divisors: [12]u64 = .{
 const powers_of_10 = [_]usize{ 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000 };
 
 pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
-
-    //const input_test = file_utils.read_input(allocator, 2, true) catch unreachable;
-    //defer allocator.free(input_test);
-    const input = file_utils.read_input(allocator, 2, false) catch unreachable;
-    defer allocator.free(input);
-
-    //solve_1(input_test);
-    solve_1(input);
-    //solve_2(input_test);
-    solve_2(input);
+    solve_1();
+    solve_2();
 }
 
-fn solve_1(input: []u8) void {
+fn solve_1() void {
     var lines = tokenizeAny(u8, input, ",\n");
     var sum: usize = 0;
     while (lines.next()) |line| {
@@ -80,7 +70,7 @@ inline fn calculate_divisions_in_range_for_divisor(current: usize, divisor: u64,
     return sum;
 }
 
-fn solve_2(input: []u8) void {
+fn solve_2() void {
     var lines = tokenizeAny(u8, input, ",\n");
     var sum: usize = 0;
     while (lines.next()) |line| {

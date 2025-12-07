@@ -2,35 +2,26 @@ const std = @import("std");
 const print = std.debug.print;
 const tokenizeAny = std.mem.tokenizeAny;
 
-const file_utils = @import("file_utils.zig");
 const simple_regex = @import("regex_utils.zig").simple_regex;
 
-pub fn main() void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer _ = arena.deinit();
-    const allocator = arena.allocator();
+const input: []const u8 = @embedFile("day3");
 
-    //const input_test = file_utils.read_input(allocator, 2, true) catch unreachable;
-    //defer allocator.free(input_test);
-    const input = file_utils.read_input(allocator, 2, false) catch unreachable;
-    defer allocator.free(input);
-    //solve_1(input_test);
-    solve_1(input);
-    //solve_2(input_test);
-    solve_2(input);
+pub fn main() void {
+    solve_1();
+    solve_2();
 }
 
-fn solve_1(input: []u8) void {
+fn solve_1() void {
     const sum: i64 = solve(input, "^(.+)\\1$");
     print("{d}\n", .{sum});
 }
 
-fn solve_2(input: []u8) void {
-    const sum: i64 = solve(input, "^(.+)\\1+$");
+fn solve_2() void {
+    const sum: i64 = solve("^(.+)\\1+$");
     print("{d}\n", .{sum});
 }
 
-fn solve(input: []u8, pattern: [:0]const u8) i64 {
+fn solve(pattern: [:0]const u8) i64 {
     const regex = simple_regex.setup_regex(pattern);
     defer regex.free();
 
