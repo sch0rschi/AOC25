@@ -10,8 +10,8 @@ const Days = struct {
     pub const Day_6 = @import("Day6.zig");
     pub const Day_7 = @import("Day7.zig");
     pub const Day_8 = @import("Day8.zig");
+    pub const Day_9 = @import("Day9.zig");
 };
-
 pub fn main() !void {
     const info = @typeInfo(Days);
 
@@ -30,7 +30,7 @@ pub fn main() !void {
         total_ns += ns;
 
         const ms = @as(f64, @floatFromInt(ns)) / 1_000_000.0;
-        std.debug.print("=== {s} finished in {:.3} ms ===\n\n", .{decl.name, ms});
+        std.debug.print("=== {s} finished in {:.3} ms ===\n\n", .{ decl.name, ms });
     }
 
     const total_ms = @as(f64, @floatFromInt(total_ns)) / 1_000_000.0;
