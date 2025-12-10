@@ -1,16 +1,17 @@
 const std = @import("std");
 
 const Days = struct {
-    pub const Day_1 = @import("Day1.zig");
-    pub const Day_2 = @import("Day2.zig");
+    //pub const Day_1 = @import("Day1.zig");
+    //pub const Day_2 = @import("Day2.zig");
     //pub const Day2_PCRE2 = @import("Day2_PCRE2.zig");
-    pub const Day_3 = @import("Day3.zig");
-    pub const Day_4 = @import("Day4.zig");
-    pub const Day_5 = @import("Day5.zig");
-    pub const Day_6 = @import("Day6.zig");
-    pub const Day_7 = @import("Day7.zig");
-    pub const Day_8 = @import("Day8.zig");
-    pub const Day_9 = @import("Day9.zig");
+    //pub const Day_3 = @import("Day3.zig");
+    //pub const Day_4 = @import("Day4.zig");
+    //pub const Day_5 = @import("Day5.zig");
+    //pub const Day_6 = @import("Day6.zig");
+    //pub const Day_7 = @import("Day7.zig");
+    //pub const Day_8 = @import("Day8.zig");
+    //pub const Day_9 = @import("Day9.zig");
+    pub const Day_10 = @import("Day10.zig");
 };
 pub fn main() !void {
     const info = @typeInfo(Days);
