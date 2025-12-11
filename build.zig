@@ -62,7 +62,7 @@ pub fn build(b: *std.Build) void {
         debug_run.addArgs(args);
     }
 
-    const days = [_]u8{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    const days = [_]u8{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
     for (days) |day| {
         const input_name = b.fmt("day{d}", .{day});
         const input_test_name = b.fmt("day{d}_test", .{day});

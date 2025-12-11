@@ -12,6 +12,7 @@ const Days = struct {
     pub const Day_8 = @import("Day8.zig");
     pub const Day_9 = @import("Day9.zig");
     pub const Day_10 = @import("Day10.zig");
+    pub const Day_11 = @import("Day11.zig");
 };
 pub fn main() !void {
     const info = @typeInfo(Days);
