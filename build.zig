@@ -13,7 +13,16 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    const gurobi_home = std.process.getEnvVarOwned(b.allocator, "GUROBI_HOME")
+        catch @panic("GUROBI_HOME not set");
+    const gurobi_lib = std.process.getEnvVarOwned(b.allocator, "GUROBI_LIB")
+        catch @panic("GUROBI_LIB not set");
+
+    exe.addIncludePath(.{ .cwd_relative = b.pathJoin(&.{ gurobi_home, "include" }) });
+    exe.addLibraryPath(.{ .cwd_relative = b.pathJoin(&.{ gurobi_home, "lib" }) });
+
     exe.linkLibC();
+    exe.linkSystemLibrary(gurobi_lib);
     exe.linkSystemLibrary("pcre2-8");
 
     b.installArtifact(exe);
@@ -36,7 +45,12 @@ pub fn build(b: *std.Build) void {
             .optimize = .Debug,
         }),
     });
+
+    debug_exe.addIncludePath(.{ .cwd_relative = b.pathJoin(&.{ gurobi_home, "include" }) });
+    debug_exe.addLibraryPath(.{ .cwd_relative = b.pathJoin(&.{ gurobi_home, "lib" }) });
+
     debug_exe.linkLibC();
+    debug_exe.linkSystemLibrary(gurobi_lib);
     debug_exe.linkSystemLibrary("pcre2-8");
     b.installArtifact(debug_exe);
 
