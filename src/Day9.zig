@@ -1,72 +1,121 @@
 const std = @import("std");
 const print = std.debug.print;
-const tokenizeScalar = std.mem.tokenizeScalar;
 
 const input: []const u8 = @embedFile("day9");
 
 const NUMBER_OF_RED_TILES = 496;
 
+const Tile = struct { x: u32, y: u32 };
+const Square = struct {
+    min_x: u32,
+    min_y: u32,
+    max_x: u32,
+    max_y: u32,
+};
+
+inline fn conflict_free(square: Square, line: Square) bool {
+    return square.max_x <= line.min_x or square.max_y <= line.min_y or square.min_x >= line.max_x or square.min_y >= line.max_y;
+}
+
+inline fn parse_u32(ptr: *[]const u8) u32 {
+    var v: u32 = 0;
+    while (ptr.*.len != 0) {
+        const c = ptr.*[0];
+        if (c < '0' or c > '9') break;
+        v = v * 10 + @as(u32, @intCast(c - '0'));
+        ptr.* = ptr.*[1..];
+    }
+    return v;
+}
+
 pub fn main() void {
-    var red_tiles: [NUMBER_OF_RED_TILES][2]u32 = undefined;
-    var lines = tokenizeScalar(u8, input, '\n');
-    var line_counter: usize = 0;
-    while (lines.next()) |line| : (line_counter += 1) {
-        var numbers = tokenizeScalar(u8, line, ',');
-        red_tiles[line_counter][0] = std.fmt.parseInt(u32, numbers.next().?, 10) catch unreachable;
-        red_tiles[line_counter][1] = std.fmt.parseInt(u32, numbers.next().?, 10) catch unreachable;
+    var rede_tiles: [NUMBER_OF_RED_TILES]Tile = undefined;
+    var lines: [NUMBER_OF_RED_TILES]Square = undefined;
+
+    var input_pointer: []const u8 = input;
+
+    // First iteration
+    var x = parse_u32(&input_pointer);
+    input_pointer = input_pointer[1..];
+    var y = parse_u32(&input_pointer);
+    if (input_pointer.len != 0) input_pointer = input_pointer[1..];
+    rede_tiles[0] = .{ .x = x, .y = y };
+
+    // Rest of iterations
+    for (1..NUMBER_OF_RED_TILES) |i| {
+        x = parse_u32(&input_pointer);
+        input_pointer = input_pointer[1..];
+        y = parse_u32(&input_pointer);
+        if (input_pointer.len != 0) input_pointer = input_pointer[1..];
+        rede_tiles[i] = .{ .x = x, .y = y };
+
+        const a = rede_tiles[i - 1];
+        const b = rede_tiles[i];
+        lines[i - 1] = .{
+            .min_x = @min(a.x, b.x),
+            .min_y = @min(a.y, b.y),
+            .max_x = @max(a.x, b.x),
+            .max_y = @max(a.y, b.y),
+        };
     }
 
-    var edges_min_maxs: [NUMBER_OF_RED_TILES][4]u32 = undefined;
-    for (0..NUMBER_OF_RED_TILES) |check_index| {
-        const check_tile_from = red_tiles[check_index];
-        const check_tile_to = red_tiles[@mod(check_index + 1, NUMBER_OF_RED_TILES)];
-        edges_min_maxs[check_index][0] = @min(check_tile_from[0], check_tile_to[0]); // min x
-        edges_min_maxs[check_index][1] = @min(check_tile_from[1], check_tile_to[1]); // min y
-        edges_min_maxs[check_index][2] = @max(check_tile_from[0], check_tile_to[0]); // max x
-        edges_min_maxs[check_index][3] = @max(check_tile_from[1], check_tile_to[1]); // max y
-    }
+    // First iteration with missing information
+    const a = rede_tiles[NUMBER_OF_RED_TILES - 1];
+    const b = rede_tiles[0];
+    lines[NUMBER_OF_RED_TILES - 1] = .{
+        .min_x = @min(a.x, b.x),
+        .min_y = @min(a.y, b.y),
+        .max_x = @max(a.x, b.x),
+        .max_y = @max(a.y, b.y),
+    };
 
+    var prng = std.Random.DefaultPrng.init(0);
+    prng.random().shuffle(Square, &lines);
 
-    var prng = std.Random.DefaultPrng.init(12345);
-    const rnd = prng.random();
-    var shuffle_indices: [NUMBER_OF_RED_TILES]usize = undefined;
-    for (&shuffle_indices, 0..) |*array_index, index| {
-        array_index.* = index;
-    }
-    rnd.shuffle(usize, &shuffle_indices);
-    rnd.shuffle([4]u32, &edges_min_maxs);
+    var max_part1: u64 = 0;
+    var max_part2: u64 = 0;
 
-    var max_area_part_1: u64 = 0;
-    var max_area_part_2: u64 = 0;
-    for (0..NUMBER_OF_RED_TILES) |shuffle_index_tile_1| {
-        const red_tile_1 = red_tiles[shuffle_indices[shuffle_index_tile_1]];
-        for (shuffle_indices[shuffle_index_tile_1 + 1 .. NUMBER_OF_RED_TILES]) |shuffle_index_tile_2| {
-            const red_tile_2 = red_tiles[shuffle_index_tile_2];
-            const x_delta: u64 = @intCast(@max(red_tile_1[0], red_tile_2[0]) - @min(red_tile_1[0], red_tile_2[0]));
-            const y_delta: u64 = @intCast(@max(red_tile_1[1], red_tile_2[1]) - @min(red_tile_1[1], red_tile_2[1]));
-            const current_area = (x_delta + 1) * (y_delta + 1);
-            max_area_part_1 = @max(max_area_part_1, current_area);
-            if (current_area > max_area_part_2) {
-                var square: [4]u32 = undefined;
-                square[0] = @max(red_tile_1[0], red_tile_2[0]);
-                square[2] = @min(red_tile_1[0], red_tile_2[0]);
-                square[1] = @max(red_tile_1[1], red_tile_2[1]);
-                square[3] = @min(red_tile_1[1], red_tile_2[1]);
-                const is_conflict = for (0..NUMBER_OF_RED_TILES) |check_index| {
-                    if (!conflict_free(&square, &edges_min_maxs[@mod(shuffle_index_tile_1 + check_index, NUMBER_OF_RED_TILES)])) {
-                        break true;
-                    }
-                } else false;
-                if (!is_conflict) {
-                    max_area_part_2 = current_area;
+    for (0..NUMBER_OF_RED_TILES) |index_1| {
+        const tile_1 = rede_tiles[index_1];
+
+        for (index_1 + 1..NUMBER_OF_RED_TILES) |index_2| {
+            const tile_2 = rede_tiles[index_2];
+
+            const square_max_x = @max(tile_1.x, tile_2.x);
+            const square_min_x = @min(tile_1.x, tile_2.x);
+            const square_max_y = @max(tile_1.y, tile_2.y);
+            const square_min_y = @min(tile_1.y, tile_2.y);
+
+            const current_area =
+                (@as(u64, square_max_x - square_min_x) + 1) *
+                (@as(u64, square_max_y - square_min_y) + 1);
+
+            if (current_area > max_part2) {
+                if (current_area > max_part1) {
+                    max_part1 = current_area;
                 }
+
+                const sq = Square{
+                    .min_x = square_min_x,
+                    .min_y = square_min_y,
+                    .max_x = square_max_x,
+                    .max_y = square_max_y,
+                };
+
+                var conflict = false;
+                comptime var k: comptime_int = 0;
+                inline while (k < NUMBER_OF_RED_TILES) : (k += 1) {
+                    if (!conflict_free(sq, lines[k])) {
+                        conflict = true;
+                        break;
+                    }
+                }
+
+                if (!conflict)
+                    max_part2 = current_area;
             }
         }
     }
-    print("{}\n", .{max_area_part_1});
-    print("{}\n", .{max_area_part_2});
-}
 
-inline fn conflict_free(square_min_max: *[4]u32, min_max: *[4]u32) bool {
-    return square_min_max[0] <= min_max[0] or square_min_max[1] <= min_max[1] or square_min_max[2] >= min_max[2] or square_min_max[3] >= min_max[3];
+    print("{}\n{}\n", .{ max_part1, max_part2 });
 }
