@@ -1,12 +1,14 @@
 const std = @import("std");
 
-pub fn PriorityQueue(comptime T: type, comptime lessThan: fn (a: T, b: T) bool) type {
+const ARITY = 8;
+const LOG_2_ARITY = 3;
+
+pub fn PriorityQueue(comptime T: type, comptime lessThan: fn(a: T, b: T) bool) type {
     return struct {
         items: []T,
         len: usize,
 
         const Self = @This();
-        const ARITY = 64;
 
         pub fn init(slice: []T) Self {
             return Self{
@@ -32,13 +34,13 @@ pub fn PriorityQueue(comptime T: type, comptime lessThan: fn (a: T, b: T) bool) 
             return result;
         }
 
-        fn siftDown(self: *Self, start: usize) void {
+        inline fn siftDown(self: *Self, start: usize) void {
             var current_index = start;
             const item = self.items[current_index];
             const items_ptr = self.items.ptr;
 
             while (true) {
-                const first_child = (current_index << 6) + 1;
+                const first_child = (current_index << LOG_2_ARITY) + 1;
                 if (first_child >= self.len) break;
 
                 var min_child = first_child;
@@ -46,12 +48,12 @@ pub fn PriorityQueue(comptime T: type, comptime lessThan: fn (a: T, b: T) bool) 
 
                 inline for (1..ARITY) |offset| {
                     const child_index = first_child + offset;
-                    if (child_index < self.len) {
-                        const value = items_ptr[child_index];
-                        if (lessThan(value, min_value)) {
-                            min_child = child_index;
-                            min_value = value;
-                        }
+                    if (child_index >= self.len) break;
+
+                    const child_value = items_ptr[child_index];
+                    if (lessThan(child_value, min_value)) {
+                        min_child = child_index;
+                        min_value = child_value;
                     }
                 }
 
